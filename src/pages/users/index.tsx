@@ -27,12 +27,31 @@ import { Pagination } from '../../components/Pagination';
 import { Sidebar } from '../../components/Sidebar';
 import { useEffect } from 'react';
 
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  createAt: string;
+};
+
 export default function UserList() {
   const { data, isLoading, error } = useQuery(['users'], async () => {
     const response = await fetch('http://localhost:3000/api/users');
     const data = await response.json();
 
-    return data;
+    const users = data.users.map((user: User) => {
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        createAt: new Date(user.createAt).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        }),
+      };
+    });
+    return users;
   });
 
   console.log(data);
@@ -88,41 +107,47 @@ export default function UserList() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  <Tr>
-                    <Td px={['4', '4', '6']}>
-                      {' '}
-                      <Checkbox colorScheme="messenger" />{' '}
-                    </Td>
-                    <Td px={['4', '4', '6']}>
-                      <Box>
-                        <Text fontWeight="bold">William Angelis</Text>
-                        <Text fontSize="sm" color="gray.300">
-                          willangelis@gmail.com
-                        </Text>
-                      </Box>
-                    </Td>
-                    {isWideVersion && <Td>05 de Agosto, 2022</Td>}
-                    <Td>
-                      {isWideVersion ? (
-                        <Button
-                          as="a"
-                          size="sm"
-                          fontSize="sm"
-                          colorScheme="messenger"
-                          leftIcon={<Icon as={RiPencilLine} fontSize="20" />}
-                          cursor="pointer"
-                        >
-                          Editar
-                        </Button>
-                      ) : (
-                        <IconButton
-                          aria-label="Edit"
-                          colorScheme="messenger"
-                          icon={<Icon as={RiPencilLine} fontSize="16" />}
-                        />
-                      )}
-                    </Td>
-                  </Tr>
+                  {data.map((user: User) => {
+                    return (
+                      <Tr key={user.id}>
+                        <Td px={['4', '4', '6']}>
+                          {' '}
+                          <Checkbox colorScheme="messenger" />{' '}
+                        </Td>
+                        <Td px={['4', '4', '6']}>
+                          <Box>
+                            <Text fontWeight="bold">{user.name}</Text>
+                            <Text fontSize="sm" color="gray.300">
+                              {user.email}
+                            </Text>
+                          </Box>
+                        </Td>
+                        {isWideVersion && <Td>{user.createAt}</Td>}
+                        <Td>
+                          {isWideVersion ? (
+                            <Button
+                              as="a"
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="messenger"
+                              leftIcon={
+                                <Icon as={RiPencilLine} fontSize="20" />
+                              }
+                              cursor="pointer"
+                            >
+                              Editar
+                            </Button>
+                          ) : (
+                            <IconButton
+                              aria-label="Edit"
+                              colorScheme="messenger"
+                              icon={<Icon as={RiPencilLine} fontSize="16" />}
+                            />
+                          )}
+                        </Td>
+                      </Tr>
+                    );
+                  })}
                 </Tbody>
               </Table>
               <Pagination />
