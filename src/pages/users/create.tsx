@@ -51,7 +51,7 @@ export default function CreateUser() {
       const response = await api.post('users', {
         user: {
           ...user,
-          created_at: new Date(),
+          create_at: new Date(),
         },
       });
       return response.data.user;

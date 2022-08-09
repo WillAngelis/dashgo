@@ -25,7 +25,7 @@ export function makeServer(){
         email(){
           return faker.internet.email().toLowerCase();
         },
-        createAt() {
+        create_at() {
           return faker.date.recent(10);
         },
       })

@@ -34,7 +34,7 @@ type User = {
   id: string;
   name: string;
   email: string;
-  createAt: string;
+  create_at: string;
 };
 
 export default function UserList() {
@@ -131,7 +131,7 @@ export default function UserList() {
                             </Text>
                           </Box>
                         </Td>
-                        {isWideVersion && <Td>{user.createAt}</Td>}
+                        {isWideVersion && <Td>{user.create_at}</Td>}
                         <Td>
                           {isWideVersion ? (
                             <Button
