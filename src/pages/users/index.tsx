@@ -21,11 +21,11 @@ import Link from 'next/link';
 
 import { RiAddLine, RiPencilLine } from 'react-icons/ri';
 
-import { useQuery } from '@tanstack/react-query';
 import { Header } from '../../components/Header';
 import { Pagination } from '../../components/Pagination';
 import { Sidebar } from '../../components/Sidebar';
-import { useEffect } from 'react';
+import { useUsers } from '../../hooks/useUsers';
+
 
 type User = {
   id: string;
@@ -91,7 +91,7 @@ export default function UserList() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {data.map((user: User) => {
+                  {data?.map((user: User) => {
                     return (
                       <Tr key={user.id}>
                         <Td px={['4', '4', '6']}>
