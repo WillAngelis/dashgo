@@ -4,6 +4,7 @@ import {
   Checkbox,
   Flex,
   Heading,
+  Link,
   Icon,
   Table,
   Tbody,
@@ -17,7 +18,7 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useState } from 'react';
 
 import { RiAddLine, RiPencilLine } from 'react-icons/ri';
@@ -26,6 +27,8 @@ import { Header } from '../../components/Header';
 import { Pagination } from '../../components/Pagination';
 import { Sidebar } from '../../components/Sidebar';
 import { useUsers } from '../../hooks/useUsers';
+import { api } from '../../services/api';
+import { queryClient } from '../../services/queryClient';
 
 type User = {
   id: string;
@@ -36,7 +39,7 @@ type User = {
 
 export default function UserList() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching, error } = useUsers();
+  const { data, isLoading, isFetching, error } = useUsers(page);
 
   console.log(page);
 
@@ -44,6 +47,20 @@ export default function UserList() {
     base: false,
     lg: true,
   });
+
+  async function handlePrefetchUser(userId: string) {
+    await queryClient.prefetchQuery(
+      ['user', userId],
+      async () => {
+        const response = await api.get(`users/${userId}`);
+
+        return response.data;
+      },
+      {
+        staleTime: 1000 * 60 * 10, // 10 minutos
+      }
+    );
+  }
 
   return (
     <Box>
@@ -58,7 +75,7 @@ export default function UserList() {
                 <Spinner size="sm" color="gray.500" ml="4"></Spinner>
               )}
             </Heading>
-            <Link href="/users/create" passHref>
+            <NextLink href="/users/create" passHref>
               <Button
                 as="a"
                 size="md"
@@ -69,7 +86,7 @@ export default function UserList() {
               >
                 Criar novo
               </Button>
-            </Link>
+            </NextLink>
           </Flex>
 
           {isLoading ? (
@@ -94,7 +111,7 @@ export default function UserList() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {data?.map((user: User) => {
+                  {data?.users.map((user: User) => {
                     return (
                       <Tr key={user.id}>
                         <Td px={['4', '4', '6']}>
@@ -103,7 +120,12 @@ export default function UserList() {
                         </Td>
                         <Td px={['4', '4', '6']}>
                           <Box>
-                            <Text fontWeight="bold">{user.name}</Text>
+                            <Link
+                              color="purple.400"
+                              onMouseEnter={() => handlePrefetchUser(user.id)}
+                            >
+                              <Text fontWeight="bold">{user.name}</Text>
+                            </Link>
                             <Text fontSize="sm" color="gray.300">
                               {user.email}
                             </Text>
@@ -138,7 +160,7 @@ export default function UserList() {
                 </Tbody>
               </Table>
               <Pagination
-                totalCountOfRegisters={200}
+                totalCountOfRegisters={data.totalCount}
                 currentPage={page}
                 onPageChange={setPage}
               />
